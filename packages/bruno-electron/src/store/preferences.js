@@ -20,6 +20,7 @@ const defaultPreferences = {
     },
     storeCookies: true,
     sendCookies: true,
+    pathByURL: false,
     timeout: 0
   },
   font: {
@@ -52,6 +53,7 @@ const preferencesSchema = Yup.object().shape({
     }),
     storeCookies: Yup.boolean(),
     sendCookies: Yup.boolean(),
+    pathByURL: Yup.boolean(),
     timeout: Yup.number()
   }),
   font: Yup.object().shape({

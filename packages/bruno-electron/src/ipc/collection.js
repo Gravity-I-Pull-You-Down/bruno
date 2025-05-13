@@ -5,7 +5,7 @@ const os = require('os');
 const path = require('path');
 const { ipcMain, shell, dialog, app } = require('electron');
 const { envJsonToBru, bruToJson, jsonToBru, jsonToBruViaWorker, collectionBruToJson, jsonToCollectionBru, bruToJsonViaWorker } = require('../bru');
-
+const { getPreferences} = require('../store/preferences');
 const {
   writeFile,
   hasBruExtension,
@@ -239,16 +239,7 @@ const registerRendererEventHandlers = (mainWindow, watcher, lastOpenedCollection
 
   // save request
   ipcMain.handle('renderer:save-request', async (event, pathname, request) => {
-    try {
-      if (!fs.existsSync(pathname)) {
-        throw new Error(`path: ${pathname} does not exist`);
-      }
-
-      const content = await jsonToBruViaWorker(request);
-      await writeFile(pathname, content);
-    } catch (error) {
-      return Promise.reject(error);
-    }
+    await renderSave(event, pathname, request);
   });
 
   // save multiple requests
@@ -1135,6 +1126,56 @@ const registerMainEventHandlers = (mainWindow, watcher, lastOpenedCollections) =
 const registerCollectionsIpc = (mainWindow, watcher, lastOpenedCollections) => {
   registerRendererEventHandlers(mainWindow, watcher, lastOpenedCollections);
   registerMainEventHandlers(mainWindow, watcher, lastOpenedCollections);
+};
+
+async function renderSave(event, pathname, request) {
+  try {
+    let pathName = pathname;
+    const preferences = getPreferences()
+    if( preferences?.request?.pathByURL ) {
+      let path = pathname;
+      path = changePathNameForRoutePrefrence(path, request.request.url)
+      console.log(path);
+      if(!fs.existsSync(path)) {
+        if(path.includes('.bru')){
+          path = path.split('/')
+          let requestName = path.pop()
+          path = path.join('/');
+          if(!fs.existsSync(path)){
+            fs.mkdirSync(path, { recursive: true });
+          }
+          const content = await jsonToBruViaWorker(request);
+          await writeFile(path + requestName, content);
+          return;
+        }
+      }
+    }
+    else if (!fs.existsSync(pathname)) {
+      throw new Error(`paths: ${pathname} does not exist`);
+    }
+    const content = await jsonToBruViaWorker(request);
+    await writeFile(pathname, content);
+  } catch (error) {
+    console.error("error", error);
+    return Promise.reject(error);
+  }
+}
+
+const changePathNameForRoutePrefrence = (pathName, url) => {
+  let [root] = pathName.split('.bru');
+  const [, Path] = url.split(/http[s*]:\/\//);
+  console.log(root, Path, url);
+  let path = Path;
+  path = path.split('/');
+  path.pop();
+  path = path.join('/');
+  root = root.split('/');
+  root.pop();
+  root = root.join('/');
+  if (pathName.includes(path)) {
+    return pathName;
+  }
+  return `${root}/${Path}.bru`;
 };
 
 module.exports = registerCollectionsIpc;
