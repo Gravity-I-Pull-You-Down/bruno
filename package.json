@@ -16,7 +16,7 @@
   ],
   "homepage": "https://usebruno.com",
   "devDependencies": {
-    "@faker-js/faker": "^7.6.0",
+    "@faker-js/faker": "^10.5.0",
     "@jest/globals": "^29.2.0",
     "@playwright/test": "^1.27.1",
     "@types/jest": "^29.5.11",
