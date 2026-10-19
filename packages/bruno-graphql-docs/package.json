@@ -18,7 +18,7 @@
     "@types/markdown-it": "^12.2.3",
     "@types/react": "^18.0.25",
     "graphql": "^16.6.0",
-    "markdown-it": "^13.0.1",
+    "markdown-it": "^15.0.3",
     "postcss": "8.4.47",
     "react": "19.0.0",
     "react-dom": "18.2.0",
@@ -31,7 +31,7 @@
   },
   "peerDependencies": {
     "graphql": "^16.6.0",
-    "markdown-it": "^13.0.1"
+    "markdown-it": "^15.0.3"
   },
   "overrides": {
     "rollup":"3.29.5"
